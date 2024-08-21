@@ -10,27 +10,35 @@ import matplotlib
 matplotlib.rc("font", family='SimHei')  # 中文字体
 
 # 切换工作目录到MMSegmentation主目录
-os.chdir('mmsegmentation')
+os.chdir(r'mmsegmentation-main')
 print("Current working directory:", os.getcwd())
 
 # 载入训练日志
-log_path = './work_dirs/ZihaoDataset-PSPNet/20230818_210528/vis_data/scalars.json'
+log_path = r"scalars.json"
 with open(log_path, "r") as f:
     json_list = f.readlines()
 
-# 创建DataFrame
+# 初始化两个空的DataFrame
 df_train = pd.DataFrame()
 df_test = pd.DataFrame()
 
+# 创建两个列表来收集数据
+train_data = []
+test_data = []
+
 for each in json_list[:-1]:
     if 'aAcc' in each:
-        df_test = df_test.append(eval(each), ignore_index=True)
+        test_data.append(eval(each))
     else:
-        df_train = df_train.append(eval(each), ignore_index=True)
+        train_data.append(eval(each))
+
+# 将收集的数据转换为DataFrame
+df_train = pd.concat([df_train, pd.DataFrame(train_data)], ignore_index=True)
+df_test = pd.concat([df_test, pd.DataFrame(test_data)], ignore_index=True)
 
 # 导出训练日志表格
-df_train.to_csv('图表/训练日志-训练集.csv', index=False)
-df_test.to_csv('图表/训练日志-测试集.csv', index=False)
+df_train.to_csv('训练日志-训练集.csv', index=False)
+df_test.to_csv('训练日志-测试集.csv', index=False)
 
 # 可视化辅助函数
 random.seed(124)
@@ -69,7 +77,7 @@ plt.xlabel('step', fontsize=20)
 plt.ylabel('Loss', fontsize=20)
 plt.title('训练集损失函数', fontsize=25)
 plt.legend(fontsize=20)
-plt.savefig('图表/训练集损失函数.pdf', dpi=120, bbox_inches='tight')
+plt.savefig('训练集损失函数.pdf', dpi=120, bbox_inches='tight')
 plt.show()
 
 # 训练集准确率可视化
@@ -88,7 +96,7 @@ plt.xlabel('step', fontsize=20)
 plt.ylabel('Metrics', fontsize=20)
 plt.title('训练集准确率', fontsize=25)
 plt.legend(fontsize=20)
-plt.savefig('图表/训练集准确率.pdf', dpi=120, bbox_inches='tight')
+plt.savefig('训练集准确率.pdf', dpi=120, bbox_inches='tight')
 plt.show()
 
 # 测试集评估指标可视化
@@ -108,5 +116,5 @@ plt.xlabel('step', fontsize=20)
 plt.ylabel('Metrics', fontsize=20)
 plt.title('测试集评估指标', fontsize=25)
 plt.legend(fontsize=20)
-plt.savefig('图表/测试集分类评估指标.pdf', dpi=120, bbox_inches='tight')
+plt.savefig('测试集分类评估指标.pdf', dpi=120, bbox_inches='tight')
 plt.show()
